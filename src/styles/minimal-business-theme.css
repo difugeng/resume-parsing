@@ -1,0 +1,252 @@
+/* 极简商务风样式覆盖 - 全局生效 */
+
+/* 全局字体设置 */
+* {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  line-height: 1.6 !important;
+}
+
+/* 表格样式 - 去线化设计 */
+.ant-table {
+  /* 移除表格边框 */
+  border: none !important;
+}
+
+.ant-table-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.ant-table-container {
+  border: none !important;
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa !important;
+  border: none !important;
+  border-bottom: 1px solid #eeeeee !important;
+  font-weight: 600;
+  color: #262626;
+}
+
+.ant-table-tbody > tr > td {
+  border: none !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #ffffff;
+}
+
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background: #fafafa !important;
+}
+
+/* 斑马纹背景色设置 */
+.ant-table-tbody > tr:nth-child(odd) > td {
+  background: #fafafa !important;
+}
+
+/* 补偿theme.ts中不支持的属性 */
+.ant-table-tbody > tr > td {
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+.ant-table-tbody > tr.ant-table-row-selected > td {
+  background: #e6f7ff;
+}
+
+.ant-table-tbody > tr.ant-table-row-hover > td {
+  background: #fafafa !important;
+}
+
+/* 表单输入框样式 */
+.ant-input {
+  border-color: #d9d9d9 !important;
+  transition: all 0.3s;
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+.ant-input-affix-wrapper {
+  border-color: #d9d9d9 !important;
+}
+
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+/* 卡片样式 - 悬浮设计 */
+.ant-card {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.08), 0 3px 6px 0 rgba(0, 0, 0, 0.06), 0 5px 12px 4px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.ant-card-bordered {
+  border: none;
+}
+
+.ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ant-card-body {
+  padding: 24px !important;
+}
+
+/* 按钮样式 */
+.ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.ant-btn-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.ant-btn-default {
+  border-color: #d9d9d9;
+  color: #595959;
+}
+
+/* 描述列表样式 */
+.ant-descriptions-title {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 600;
+  color: #262626;
+  padding-right: 24px !important;
+}
+
+.ant-descriptions-item-content {
+  padding-right: 24px !important;
+}
+
+/* 补偿theme.ts中不支持的属性 */
+.ant-descriptions-item {
+  padding-bottom: 12px !important;
+}
+
+.ant-descriptions-item > .ant-descriptions-item-label,
+.ant-descriptions-item > .ant-descriptions-item-content {
+  padding-inline-end: 16px;
+}
+
+/* 步骤条样式 */
+.ant-steps-item-title {
+  color: #595959 !important;
+  font-weight: 500;
+}
+
+.ant-steps-item-description {
+  color: #8c8c8c !important;
+}
+
+.ant-steps-item-process .ant-steps-item-title {
+  color: #1890ff !important;
+}
+
+.ant-steps-item-wait .ant-steps-item-title {
+  color: #8c8c8c !important;
+}
+
+/* 标签样式 */
+.ant-tag {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: #fafafa;
+  color: #595959;
+}
+
+/* 进度条样式 */
+.ant-progress-text {
+  color: #8c8c8c;
+}
+
+/* 弹窗样式 */
+.ant-modal {
+  border-radius: 8px;
+}
+
+.ant-modal-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.ant-modal-footer {
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 增加全局留白 */
+.ant-row {
+  margin-left: -20px !important;
+  margin-right: -20px !important;
+}
+
+.ant-col {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* 为表格单元格增加更多内边距 */
+.minimal-business-theme .ant-table-tbody > tr > td {
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+/* 标题加粗 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+/* 正文使用标准字体 */
+p {
+  line-height: 1.6;
+}
+
+/* 去除表格横向边框线 */
+.ant-table-wrapper::before,
+.ant-table-wrapper::after {
+  display: none;
+}
+
+.ant-table-container table > thead > tr:first-child > th {
+  border-top: none;
+}
+
+/* 特别处理 Radio.Button 的竖直居中 */
+.ant-radio-button-wrapper {
+  height: 32px !important;
+  line-height: 30px !important;
+}
+
+.ant-radio-button-wrapper span {
+  line-height: 1 !important;
+}
+
+.ant-table-thead > tr > th {
+  border-bottom: 1px solid #d9d9d9 !important;
+}
