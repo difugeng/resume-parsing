@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Button, Space, Modal, Form, Input, Select, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ArrowLeftOutlined, CopyOutlined } from '@ant-design/icons';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { mockJobPositions } from '../mockData';
 import { JobPosition, JOB_STATUS_LABELS } from '../types';
-
-const { TextArea } = Input;
-const { Option } = Select;
 
 // 职位列表页面
 const JobListPage: React.FC = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState<JobPosition[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<JobPosition[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,7 +20,7 @@ const JobListPage: React.FC = () => {
     //     setFilteredJobs(data);
     //   } catch (error) {
     //     console.error('获取职位列表失败:', error);
-    //     message.error('获取职位列表失败');
+    //     alert('获取职位列表失败');
     //   } finally {
     //     setLoading(false);
     //   }
@@ -36,7 +30,6 @@ const JobListPage: React.FC = () => {
     // 使用 mock 数据
     setJobs(mockJobPositions);
     setFilteredJobs(mockJobPositions);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -47,18 +40,18 @@ const JobListPage: React.FC = () => {
     }
   }, [selectedStatus, jobs]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
       case 'active':
-        return 'green';
+        return 'status-completed';
       case 'draft':
-        return 'default';
+        return 'status-partial';
       case 'paused':
-        return 'orange';
+        return 'status-processing';
       case 'closed':
-        return 'red';
+        return 'status-failed';
       default:
-        return 'default';
+        return '';
     }
   };
 
@@ -88,10 +81,10 @@ const JobListPage: React.FC = () => {
     //     const createdJob = await response.json();
     //     setJobs([...jobs, createdJob]);
     //     setFilteredJobs([...filteredJobs, createdJob]);
-    //     message.success('职位复制成功');
+    //     alert('职位复制成功');
     //   } catch (error) {
     //     console.error('复制职位失败:', error);
-    //     message.error('复制职位失败');
+    //     alert('复制职位失败');
     //   }
     // };
     // copyJob();
@@ -99,495 +92,334 @@ const JobListPage: React.FC = () => {
     // 使用 mock 数据
     setJobs([...jobs, newJob]);
     setFilteredJobs([...filteredJobs, newJob]);
-    message.success('职位复制成功');
-  };
-
-  const handleStatusChange = (id: string, newStatus: string) => {
-    // TODO: 替换为真实 API 调用
-    // const updateJobStatus = async () => {
-    //   try {
-    //     await fetch(`/api/v1/jobs/${id}/status`, {
-    //       method: 'PUT',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       body: JSON.stringify({ status: newStatus }),
-    //     });
-    //     setJobs(jobs.map(job => job.id === id ? { ...job, status: newStatus } : job));
-    //     setFilteredJobs(filteredJobs.map(job => job.id === id ? { ...job, status: newStatus } : job));
-    //     message.success('状态更新成功');
-    //   } catch (error) {
-    //     console.error('更新职位状态失败:', error);
-    //     message.error('更新职位状态失败');
-    //   }
-    // };
-    // updateJobStatus();
-
-    // 使用 mock 数据
-    setJobs(jobs.map(job => job.id === id ? { ...job, status: newStatus as any } : job));
-    setFilteredJobs(filteredJobs.map(job => job.id === id ? { ...job, status: newStatus as any } : job));
-    message.success('状态更新成功');
+    alert('职位复制成功');
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除这个职位吗？此操作不可恢复。',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
+    if (confirm('确定要删除这个职位吗？此操作不可恢复。')) {
+      try {
         // TODO: 替换为真实 API 调用
-        // const deleteJob = async () => {
-        //   try {
-        //     await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE' });
-        //     setJobs(jobs.filter(job => job.id !== id));
-        //     setFilteredJobs(filteredJobs.filter(job => job.id !== id));
-        //     message.success('删除成功');
-        //   } catch (error) {
-        //     console.error('删除职位失败:', error);
-        //     message.error('删除职位失败');
-        //   }
-        // };
-        // deleteJob();
-
-        // 使用 mock 数据
-        const updatedJobs = jobs.filter(job => job.id !== id);
-        setJobs(updatedJobs);
-        setFilteredJobs(updatedJobs);
-        message.success('删除成功');
+        // await fetch(`/api/v1/jobs/${id}`, { method: 'DELETE' });
+        setJobs(jobs.filter(job => job.id !== id));
+        setFilteredJobs(filteredJobs.filter(job => job.id !== id));
+        alert('删除成功');
+      } catch (error) {
+        console.error('删除职位失败:', error);
+        alert('删除职位失败');
       }
-    });
-  };
-
-  const columns: any = [
-    {
-      title: '职位名称',
-      dataIndex: 'positionName',
-      key: 'positionName',
-      sorter: (a: JobPosition, b: JobPosition) => a.positionName.localeCompare(b.positionName),
-    },
-    {
-      title: '所属部门',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{JOB_STATUS_LABELS[status as keyof typeof JOB_STATUS_LABELS]}</Tag>
-      ),
-      filters: [
-        { text: '全部', value: null },
-        { text: '草稿', value: 'draft' },
-        { text: '招聘中', value: 'active' },
-        { text: '暂停招聘', value: 'paused' },
-        { text: '已关闭', value: 'closed' },
-      ],
-      onFilter: (value: any, record: JobPosition) => {
-        if (value === null) return true;
-        return record.status === value;
-      },
-    },
-    {
-      title: '工作地点',
-      dataIndex: 'workLocation',
-      key: 'workLocation',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text: string) => new Date(text).toLocaleDateString('zh-CN'),
-      sorter: (a: JobPosition, b: JobPosition) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_: any, record: JobPosition) => (
-        <Space size="middle">
-          <Button 
-            type="link" 
-            icon={<EditOutlined />} 
-            onClick={() => handleEdit(record.id)}
-          >
-            编辑
-          </Button>
-          <Button 
-            type="link" 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-          >
-            删除
-          </Button>
-          <Button 
-            type="link" 
-            icon={<CopyOutlined />}
-            onClick={() => handleCopy(record)}
-          >
-            复制
-          </Button>
-          <Select
-            value={record.status}
-            onChange={(value) => handleStatusChange(record.id, value)}
-            style={{ width: 100 }}
-            size="small"
-          >
-            <Option value="draft">草稿</Option>
-            <Option value="active">招聘中</Option>
-            <Option value="paused">暂停招聘</Option>
-            <Option value="closed">已关闭</Option>
-          </Select>
-        </Space>
-      ),
-    },
-  ];
-
-  const handleAddJob = () => {
-    navigate('/jobs/new');
+    }
   };
 
   return (
-    <div>
-      <Card 
-        title="职位管理"
-        extra={
-          <Space>
-            <Select
-              placeholder="按状态筛选"
-              style={{ width: 150 }}
-              allowClear
-              onChange={(value) => setSelectedStatus(value)}
-            >
-              <Option value="">全部</Option>
-              <Option value="draft">草稿</Option>
-              <Option value="active">招聘中</Option>
-              <Option value="paused">暂停招聘</Option>
-              <Option value="closed">已关闭</Option>
-            </Select>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddJob}>
-              新增职位
-            </Button>
-          </Space>
-        }
-      >
-        <Table 
-          dataSource={filteredJobs} 
-          columns={columns} 
-          rowKey="id"
-          loading={loading}
-          pagination={{ 
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条记录`
-          }}
-        />
-      </Card>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-slate-800">职位管理</h2>
+        <button 
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold shadow-xl shadow-blue-100 transition-all flex items-center space-x-2"
+          onClick={() => navigate('/jobs/new')}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>新建职位</span>
+        </button>
+      </div>
+
+      {/* 状态筛选按钮 */}
+      <div className="flex space-x-3">
+        <button
+          className={`px-4 py-2 rounded-xl font-medium text-sm ${
+            selectedStatus === null
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+          onClick={() => setSelectedStatus(null)}
+        >
+          全部
+        </button>
+        <button
+          className={`px-4 py-2 rounded-xl font-medium text-sm ${
+            selectedStatus === 'active'
+              ? 'bg-green-600 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+          onClick={() => setSelectedStatus('active')}
+        >
+          启用
+        </button>
+        <button
+          className={`px-4 py-2 rounded-xl font-medium text-sm ${
+            selectedStatus === 'draft'
+              ? 'bg-orange-500 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+          onClick={() => setSelectedStatus('draft')}
+        >
+          草稿
+        </button>
+        <button
+          className={`px-4 py-2 rounded-xl font-medium text-sm ${
+            selectedStatus === 'paused'
+              ? 'bg-yellow-500 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+          onClick={() => setSelectedStatus('paused')}
+        >
+          暂停
+        </button>
+        <button
+          className={`px-4 py-2 rounded-xl font-medium text-sm ${
+            selectedStatus === 'closed'
+              ? 'bg-red-500 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+          onClick={() => setSelectedStatus('closed')}
+        >
+          关闭
+        </button>
+      </div>
+
+      {/* 职位列表 */}
+      <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden card-shadow">
+        <table className="min-w-full divide-y divide-slate-100">
+          <thead className="bg-slate-50">
+            <tr>
+              {['职位名称', '职位类型', '职位类别', '状态', '创建时间', '操作'].map((head) => (
+                <th key={head} className="px-6 py-4 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  {head}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {filteredJobs.map((job) => (
+              <tr key={job.id} className="hover:bg-slate-50 transition-colors group">
+                <td className="px-6 py-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2m8 0V9a2 2 0 01-2 2H8a2 2 0 01-2-2V7m6 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v3m6 0V9a2 2 0 01-2 2H8a2 2 0 01-2-2V7" />
+                      </svg>
+                    </div>
+                    <div className="text-sm font-bold text-slate-700">{job.positionName}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-500 font-medium">{job.positionType || '-'}</td>
+                <td className="px-6 py-4 text-sm text-slate-500 font-medium">{job.category || '-'}</td>
+                <td className="px-6 py-4">
+                  <span className={`${getStatusClass(job.status)} px-2.5 py-1 rounded-full text-[11px] font-bold`}>
+                    {JOB_STATUS_LABELS[job.status as keyof typeof JOB_STATUS_LABELS]}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-500 font-medium">{new Date(job.createdAt).toLocaleString('zh-CN')}</td>
+                <td className="px-6 py-4">
+                  <div className="flex space-x-3">
+                    <button 
+                      className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                      onClick={() => handleEdit(job.id)}
+                    >
+                      编辑
+                    </button>
+                    <button 
+                      className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                      onClick={() => handleCopy(job)}
+                    >
+                      复制
+                    </button>
+                    <button 
+                      className="text-red-600 hover:text-red-800 font-medium text-sm"
+                      onClick={() => handleDelete(job.id)}
+                    >
+                      删除
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-// 职位表单页面
-const JobFormPage: React.FC = () => {
-  const navigate = useNavigate();
+// 职位编辑页面
+const JobEditPage: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true);
-  const isEdit = jobId && jobId !== 'new';
+  const navigate = useNavigate();
+  const [job, setJob] = useState<JobPosition | null>(null);
+  const [formData, setFormData] = useState({
+    positionName: '',
+    positionType: '',
+    category: '',
+    status: 'active',
+    description: ''
+  });
 
   useEffect(() => {
-    if (isEdit) {
-      // TODO: 替换为真实 API 调用
-      // const fetchJob = async () => {
-      //   try {
-      //     const response = await fetch(`/api/v1/jobs/${jobId}`);
-      //     const data = await response.json();
-      //     form.setFieldsValue({
-      //       ...data,
-      //       responsibilities: data.responsibilities.join('\n'),
-      //       qualifications: data.qualifications.join('\n'),
-      //       requiredSkills: data.requiredSkills.join(', '),
-      //     });
-      //   } catch (error) {
-      //     console.error('获取职位详情失败:', error);
-      //     message.error('获取职位详情失败');
-      //   } finally {
-      //     setLoading(false);
-      //   }
-      // };
-      // fetchJob();
-
+    if (jobId === 'new') {
+      // 新建职位
+      setJob(null);
+    } else {
+      // 编辑现有职位
       // 使用 mock 数据
-      const mockJob = mockJobPositions.find(j => j.id === jobId);
+      const mockJob = mockJobPositions.find(job => job.id === jobId);
       if (mockJob) {
-        form.setFieldsValue({
-          ...mockJob,
-          responsibilities: mockJob.responsibilities.join('\n'),
-          qualifications: mockJob.qualifications.join('\n'),
-          requiredSkills: mockJob.requiredSkills.join(', '),
-          preferredSkills: mockJob.preferredSkills.join(', '),
+        setJob(mockJob);
+        setFormData({
+          positionName: mockJob.positionName,
+          positionType: mockJob.positionType || '',
+          category: mockJob.category || '',
+          status: mockJob.status,
+          description: mockJob.description || ''
         });
-      } else {
-        message.error('职位不存在');
-        navigate('/jobs');
       }
-      setLoading(false);
-    } else {
-      setLoading(false);
     }
-  }, [jobId, isEdit, form, navigate]);
+  }, [jobId]);
 
-  const handleFinish = async (_values: any) => {
-    if (isEdit) {
+  const handleSubmit = async () => {
+    try {
       // TODO: 替换为真实 API 调用
-      // try {
-      //   // 将字符串转换回数组
-      //   const responsibilities = _values.responsibilities ? _values.responsibilities.split('\n').filter((s: string) => s.trim()) : [];
-      //   const qualifications = _values.qualifications ? _values.qualifications.split('\n').filter((s: string) => s.trim()) : [];
-      //   const requiredSkills = _values.requiredSkills ? _values.requiredSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [];
-      //   const preferredSkills = _values.preferredSkills ? _values.preferredSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [];
-      //   const jobData = {
-      //     ..._values,
-      //     responsibilities,
-      //     qualifications,
-      //     requiredSkills,
-      //     preferredSkills,
-      //   };
-      //   await fetch(`/api/v1/jobs/${jobId}`, {
-      //     method: 'PUT',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(jobData),
-      //   });
-      //   message.success('职位更新成功');
-      //   navigate('/jobs');
-      // } catch (error) {
-      //   console.error('更新职位失败:', error);
-      //   message.error('更新职位失败');
-      // }
-      message.success('职位更新成功（模拟）');
+      alert(jobId === 'new' ? '创建成功' : '更新成功');
       navigate('/jobs');
-    } else {
-      // TODO: 替换为真实 API 调用
-      // try {
-      //   // 将字符串转换回数组
-      //   const responsibilities = _values.responsibilities ? _values.responsibilities.split('\n').filter((s: string) => s.trim()) : [];
-      //   const qualifications = _values.qualifications ? _values.qualifications.split('\n').filter((s: string) => s.trim()) : [];
-      //   const requiredSkills = _values.requiredSkills ? _values.requiredSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [];
-      //   const preferredSkills = _values.preferredSkills ? _values.preferredSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [];
-      //   const jobData = {
-      //     ..._values,
-      //     responsibilities,
-      //     qualifications,
-      //     requiredSkills,
-      //     preferredSkills,
-      //   };
-      //   await fetch('/api/v1/jobs', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(jobData),
-      //   });
-      //   message.success('职位创建成功');
-      //   navigate('/jobs');
-      // } catch (error) {
-      //   console.error('创建职位失败:', error);
-      //   message.error('创建职位失败');
-      // }
-      message.success('职位创建成功（模拟）');
-      navigate('/jobs');
+    } catch (error) {
+      console.error('保存职位失败:', error);
+      alert('保存职位失败');
     }
   };
 
-  const handleGoBack = () => {
+  const handleCancel = () => {
     navigate('/jobs');
   };
 
-  if (loading) {
-    return <div>加载中...</div>;
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button onClick={handleGoBack} icon={<ArrowLeftOutlined />} type="primary" ghost>
-          返回
-        </Button>
-      </div>
-      <Card 
-        title={isEdit ? '编辑职位' : '新增职位'} 
-        style={{ maxWidth: 800, margin: '0 auto', textAlign: 'left' }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleFinish}
-          initialValues={{
-            status: 'draft',
-            employmentType: 'full_time',
-            experienceLevel: 'entry',
-          }}
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6">
+        <button 
+          onClick={handleCancel} 
+          className="flex items-center text-slate-600 hover:text-slate-900 transition-colors"
         >
-          <Form.Item
-            name="positionName"
-            label="职位名称"
-            rules={[{ required: true, message: '请输入职位名称' }]}
-          >
-            <Input placeholder="请输入职位名称" />
-          </Form.Item>
-
-          <Form.Item
-            name="department"
-            label="所属部门"
-            rules={[{ required: true, message: '请选择所属部门' }]}
-          >
-            <Select placeholder="请选择所属部门">
-              <Option value="技术研发部">技术研发部</Option>
-              <Option value="产品部">产品部</Option>
-              <Option value="设计部">设计部</Option>
-              <Option value="市场部">市场部</Option>
-              <Option value="运营部">运营部</Option>
-              <Option value="人事部">人事部</Option>
-              <Option value="财务部">财务部</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="workLocation"
-            label="工作地点"
-            rules={[{ required: true, message: '请选择工作地点' }]}
-          >
-            <Select placeholder="请选择工作地点">
-              <Option value="北京">北京</Option>
-              <Option value="上海">上海</Option>
-              <Option value="广州">广州</Option>
-              <Option value="深圳">深圳</Option>
-              <Option value="杭州">杭州</Option>
-              <Option value="成都">成都</Option>
-              <Option value="武汉">武汉</Option>
-              <Option value="西安">西安</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="employmentType"
-            label="用工类型"
-            rules={[{ required: true, message: '请选择用工类型' }]}
-          >
-            <Select placeholder="请选择用工类型">
-              <Option value="full_time">全职</Option>
-              <Option value="part_time">兼职</Option>
-              <Option value="intern">实习</Option>
-              <Option value="contract">合同制</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="experienceLevel"
-            label="经验要求"
-            rules={[{ required: true, message: '请选择经验要求' }]}
-          >
-            <Select placeholder="请选择经验要求">
-              <Option value="entry">初级（0-2年）</Option>
-              <Option value="mid">中级（3-5年）</Option>
-              <Option value="senior">高级（6-10年）</Option>
-              <Option value="expert">专家/总监（10年以上）</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="salaryRange"
-            label="薪资范围（元/月）"
-            rules={[{ required: true, message: '请输入薪资范围' }]}
-          >
-            <Input placeholder="如：15000-25000" />
-          </Form.Item>
-
-          <Form.Item
-            name="educationRequirement"
-            label="学历要求"
-            rules={[{ required: true, message: '请选择学历要求' }]}
-          >
-            <Select placeholder="请选择学历要求">
-              <Option value="不限">不限</Option>
-              <Option value="大专">大专</Option>
-              <Option value="本科">本科</Option>
-              <Option value="硕士">硕士</Option>
-              <Option value="博士">博士</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="majorPreference"
-            label="专业偏好"
-          >
-            <Input placeholder="请输入专业偏好" />
-          </Form.Item>
-
-          <Form.Item
-            name="description"
-            label="职位描述"
-            rules={[{ required: true, message: '请输入职位描述' }]}
-          >
-            <TextArea rows={4} placeholder="请输入职位描述" />
-          </Form.Item>
-
-          <Form.Item
-            name="responsibilities"
-            label="核心职责（每行一项）"
-            rules={[{ required: true, message: '请输入核心职责' }]}
-          >
-            <TextArea rows={4} placeholder="每行输入一项核心职责" />
-          </Form.Item>
-
-          <Form.Item
-            name="qualifications"
-            label="任职资格（每行一项）"
-            rules={[{ required: true, message: '请输入任职资格' }]}
-          >
-            <TextArea rows={4} placeholder="每行输入一项任职资格" />
-          </Form.Item>
-
-          <Form.Item
-            name="requiredSkills"
-            label="必需技能（回车分隔）"
-            rules={[{ required: true, message: '请输入必需技能' }]}
-          >
-            <TextArea rows={4} placeholder="请输入必需技能，用逗号分隔" />
-          </Form.Item>
-
-          <Form.Item
-            name="preferredSkills"
-            label="加分技能"
-          >
-            <TextArea rows={4} placeholder="请输入加分技能，用逗号分隔" />
-          </Form.Item>
-
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                {isEdit ? '更新职位' : '创建职位'}
-              </Button>
-              <Button onClick={handleGoBack}>
-                取消
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Card>
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          返回
+        </button>
+      </div>
+      
+      <div className="bg-white rounded-3xl border border-slate-100 p-8 card-shadow">
+        <h2 className="text-2xl font-bold text-slate-800 mb-8">
+          {jobId === 'new' ? '新建职位' : `编辑职位 - ${job?.positionName}`}
+        </h2>
+        
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">职位名称 *</label>
+            <input
+              type="text"
+              name="positionName"
+              value={formData.positionName}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
+              placeholder="请输入职位名称"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">职位类型</label>
+            <select
+              name="positionType"
+              value={formData.positionType}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
+            >
+              <option value="">请选择职位类型</option>
+              <option value="technical">技术</option>
+              <option value="product">产品</option>
+              <option value="design">设计</option>
+              <option value="marketing">市场</option>
+              <option value="operations">运营</option>
+              <option value="finance">财务</option>
+              <option value="hr">人事</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">职位类别</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
+            >
+              <option value="">请选择职位类别</option>
+              <option value="fulltime">全职</option>
+              <option value="parttime">兼职</option>
+              <option value="internship">实习</option>
+              <option value="contract">合同工</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">状态 *</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
+            >
+              <option value="active">启用</option>
+              <option value="draft">草稿</option>
+              <option value="paused">暂停</option>
+              <option value="closed">关闭</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">职位描述</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
+              placeholder="请输入职位描述"
+            />
+          </div>
+          
+          <div className="flex justify-end space-x-4 pt-4">
+            <button
+              className="px-6 py-3 border border-slate-300 text-slate-700 rounded-2xl font-medium transition-colors"
+              onClick={handleCancel}
+            >
+              取消
+            </button>
+            <button
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold transition-colors"
+              onClick={handleSubmit}
+            >
+              保存
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-// 主组件，根据路由渲染不同页面
+// 职位管理页面 - 根据路由渲染不同子页面
 const PositionManagementPage: React.FC = () => {
-  const { jobId } = useParams<{ jobId: string }>();
   const location = useLocation();
+  const isEditRoute = location.pathname.includes('/edit') || location.pathname.endsWith('/new');
 
-  if (jobId || location.pathname === '/jobs/new') {
-    return <JobFormPage />;
-  }
-
-  return <JobListPage />;
+  return isEditRoute ? <JobEditPage /> : <JobListPage />;
 };
 
 export default PositionManagementPage;

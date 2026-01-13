@@ -1,28 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Card, 
-  Input, 
-  Button, 
-  Select, 
-  Slider, 
-  DatePicker, 
-  Tag, 
-  Table, 
-  Progress, 
-  Space, 
-  message,
-  Row,
-  Col,
-  Dropdown,
-  MenuProps
-} from 'antd';
-import { SearchOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { IndexedResume } from '../types';
 import { mockIndexedResumes } from '../mockData';
 import ResumeDetailModal from '../components/ResumeDetailModal';
-
-const { RangePicker } = DatePicker;
 
 const ResumeRepositoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +14,6 @@ const ResumeRepositoryPage: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [data, setData] = useState<IndexedResume[]>([]);
   const [filteredData, setFilteredData] = useState<IndexedResume[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
   const [selectedResume, setSelectedResume] = useState<IndexedResume | null>(null);
   const [sortConfig, setSortConfig] = useState<{ field: string; order: 'ascend' | 'descend' | undefined }>({
@@ -48,7 +27,6 @@ const ResumeRepositoryPage: React.FC = () => {
     setTimeout(() => {
       setData(mockIndexedResumes);
       setFilteredData(mockIndexedResumes);
-      setLoading(false);
     }, 500);
   }, []);
 
@@ -63,7 +41,6 @@ const ResumeRepositoryPage: React.FC = () => {
     'GCP', 'Linux', 'Git', 'Jenkins', 'Figma', 'Sketch', 'Photoshop', 'Illustrator',
     'TensorFlow', 'PyTorch', '机器学习', '深度学习', '数据分析', '数据挖掘', 'PMP'
   ];
-  const positionOptions = ['前端开发工程师', 'Java开发工程师', '产品策划经理', 'UI/UX设计师', '数据挖掘工程师', 'DevOps工程师', '自动化测试工程师', '机器学习工程师', '项目管理专家'];
 
   // 应用筛选
   useEffect(() => {
@@ -173,7 +150,7 @@ const ResumeRepositoryPage: React.FC = () => {
   // 处理搜索
   const handleSearch = () => {
     // 这里可以添加搜索逻辑
-    message.info(`搜索关键词: ${searchKeyword}`);
+    alert(`搜索关键词: ${searchKeyword}`);
   };
 
   // 处理回车搜索
@@ -183,158 +160,75 @@ const ResumeRepositoryPage: React.FC = () => {
     }
   };
 
-  // 表格列定义
-  const columns = [
-    {
-      title: '姓名',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: true,
-      render: (_text: string, record: IndexedResume) => (
-        <a onClick={() => {
-          setSelectedResume(record);
-          setDetailModalVisible(true);
-        }}>
-          {record.name}
-        </a>
-      )
-    },
-    {
-      title: '手机号',
-      dataIndex: 'phone',
-      key: 'phone',
-      sorter: true
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      sorter: true
-    },
-    {
-      title: '当前职位',
-      dataIndex: 'currentPosition',
-      key: 'currentPosition',
-      sorter: true
-    },
-    {
-      title: '公司',
-      dataIndex: 'currentCompany',
-      key: 'currentCompany',
-      sorter: true
-    },
-    {
-      title: '城市',
-      dataIndex: 'location',
-      key: 'location',
-      sorter: true
-    },
-    {
-      title: '匹配职位',
-      key: 'matchedPosition',
-      sorter: true,
-      render: (_: any, record: IndexedResume) => (
-          <div>
-            <div style={{ marginBottom: 4 }}>{record.matchedPosition || '—'}</div>
-            {record.matchScore !== undefined && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Progress 
-                  percent={record.matchScore} 
-                  size="small" 
-                  showInfo={false}
-                  strokeWidth={6}
-                  style={{ flex: 1, maxWidth: 80 }}
-                  strokeColor={record.matchScore >= 80 ? '#52c41a' : record.matchScore >= 60 ? '#faad14' : '#f5222d'} 
-                />
-                <span style={{ fontSize: '12px', color: '#666', minWidth: '30px' }}>{record.matchScore}%</span>
-              </div>
-            )}
-          </div>
-        )
-    },
-    {
-      title: '来源',
-      dataIndex: 'source',
-      key: 'source',
-      sorter: true
-    },
-    {
-      title: '解析时间',
-      dataIndex: 'parsedAt',
-      key: 'parsedAt',
-      sorter: true,
-      render: (text: string) => new Date(text).toLocaleString('zh-CN')
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_unused: any, record: IndexedResume) => (
-        <Button 
-          type="link" 
-          onClick={() => {
-            // TODO: 实际API调用 - 跳转到对应的解析任务详情页面
-            // 这里应该根据简历ID获取对应的解析任务ID，然后跳转
-            // 暂时使用一个模拟的任务ID进行跳转
-            navigate(`/tasks/${record.resumeId}`);
-          }}
-        >
-          查看详情
-        </Button>
-      )
+  // 处理排序
+  const handleSort = (field: string) => {
+    let order: 'ascend' | 'descend' | undefined = 'ascend';
+    if (sortConfig.field === field && sortConfig.order === 'ascend') {
+      order = 'descend';
+    } else if (sortConfig.field === field && sortConfig.order === 'descend') {
+      order = undefined;
     }
-  ];
+    setSortConfig({ field, order });
+  };
 
-  // 表格选择配置
-  const rowSelection = {
-    selectedRowKeys: selectedRows,
-    onChange: (selectedRowKeys: React.Key[]) => {
-      setSelectedRows(selectedRowKeys as string[]);
+  // 获取排序图标
+  const getSortIcon = (field: string) => {
+    if (sortConfig.field !== field) {
+      return (
+        <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    if (sortConfig.order === 'ascend') {
+      return (
+        <svg className="w-4 h-4 ml-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+        </svg>
+      );
+    } else if (sortConfig.order === 'descend') {
+      return (
+        <svg className="w-4 h-4 ml-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      );
+    }
+    return null;
+  };
+
+  // 表格选择处理
+  const handleRowSelect = (resumeId: string) => {
+    if (selectedRows.includes(resumeId)) {
+      setSelectedRows(selectedRows.filter(id => id !== resumeId));
+    } else {
+      setSelectedRows([...selectedRows, resumeId]);
     }
   };
 
-  // 批量操作菜单
-  const batchMenuItems: MenuProps['items'] = [
-    {
-      key: 'export',
-      label: '导出选中',
-    },
-    {
-      key: 'contact',
-      label: '标记为已联系',
-    },
-  ];
+  const handleSelectAll = () => {
+    if (selectedRows.length === filteredData.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(filteredData.map(item => item.resumeId));
+    }
+  };
 
   // 处理批量操作
-  const handleBatchOperation = (key: string) => {
+  const handleBatchOperation = (operation: string) => {
     if (selectedRows.length === 0) {
-      message.warning('请先选择要操作的简历');
+      alert('请先选择要操作的简历');
       return;
     }
 
-    switch (key) {
+    switch (operation) {
       case 'export':
-        message.success(`已导出 ${selectedRows.length} 份简历`);
+        alert(`已导出 ${selectedRows.length} 份简历`);
         break;
       case 'contact':
-        message.success(`已标记 ${selectedRows.length} 份简历为已联系`);
+        alert(`已标记 ${selectedRows.length} 份简历为已联系`);
         break;
       default:
         break;
-    }
-  };
-
-  // 处理表格排序
-  const handleTableChange = (_pagination: any, _filters: any, sorter: any) => {
-    if (sorter.field && sorter.order) {
-      setSortConfig({
-        field: sorter.field,
-        order: sorter.order
-      });
-    } else {
-      setSortConfig({
-        field: '',
-        order: undefined
-      });
     }
   };
 
@@ -346,7 +240,7 @@ const ResumeRepositoryPage: React.FC = () => {
     switch (key) {
       case 'city':
         label = '当前城市';
-        displayValue = value.join('、');
+        displayValue = Array.isArray(value) ? value.join('、') : value;
         break;
       case 'degree':
         label = '最高学历';
@@ -358,7 +252,7 @@ const ResumeRepositoryPage: React.FC = () => {
         break;
       case 'skills':
         label = '硬技能';
-        displayValue = value.join('、');
+        displayValue = Array.isArray(value) ? value.join('、') : value;
         break;
       case 'matchScore':
         label = '匹配度';
@@ -378,187 +272,456 @@ const ResumeRepositoryPage: React.FC = () => {
     }
 
     return (
-      <Tag 
+      <span 
         key={key} 
-        closable 
-        onClose={() => removeFilter(key)}
+        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 mr-2 mb-2"
       >
         {label}: {displayValue}
-      </Tag>
+        <button 
+          onClick={() => removeFilter(key)}
+          className="ml-2 text-blue-600 hover:text-blue-800"
+        >
+          ×
+        </button>
+      </span>
     );
   });
 
+  // 分页处理
+  const totalPages = Math.ceil(filteredData.length / pageSize);
+  const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="bg-white rounded-3xl border border-slate-100 p-6 card-shadow">
         {/* 搜索框 */}
-        <div style={{ marginBottom: 24 }}>
-          <Input.Search
-            placeholder="输入关键词或自然语言，如 '3年Python经验'"
-            enterButton={<Button type="primary" icon={<SearchOutlined />}>搜索</Button>}
-            size="large"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            onSearch={handleSearch}
-            onPressEnter={handleSearchPress}
-          />
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="输入关键词或自然语言，如 '3年Python经验'"
+              className="w-full p-4 pl-12 pr-32 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyDown={handleSearchPress}
+            />
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl font-medium transition-colors"
+              onClick={handleSearch}
+            >
+              搜索
+            </button>
+          </div>
         </div>
 
         {/* 高级筛选按钮 */}
-        <div style={{ marginBottom: 16 }}>
-          <Button 
-            type="link" 
+        <div className="mb-4">
+          <button 
+            className="flex items-center text-slate-600 hover:text-slate-900 transition-colors"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            icon={showAdvancedFilters ? <UpOutlined /> : <DownOutlined />}
           >
-            {showAdvancedFilters ? '收起筛选' : '高级筛选'}
-          </Button>
+            {showAdvancedFilters ? (
+              <>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                </svg>
+                收起筛选
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                高级筛选
+              </>
+            )}
+          </button>
         </div>
 
         {/* 高级筛选面板 */}
         {showAdvancedFilters && (
-          <Card size="small" style={{ marginBottom: 16 }}>
-            <Row gutter={[16, 16]}>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>当前城市</div>
-                <Select
-                  mode="multiple"
-                  style={{ width: '100%' }}
-                  placeholder="请选择城市"
-                  options={cityOptions.map(city => ({ label: city, value: city }))}
+          <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">当前城市</label>
+                <select
+                  multiple
+                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={selectedFilters.city || []}
-                  onChange={(value) => handleFilterChange('city', value)}
-                />
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>最高学历</div>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="请选择学历"
-                  options={degreeOptions.map(degree => ({ label: degree, value: degree }))}
-                  value={selectedFilters.degree || undefined}
-                  onChange={(value) => handleFilterChange('degree', value)}
-                />
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>工作年限</div>
-                <Slider
-                  range
-                  min={0}
-                  max={20}
-                  defaultValue={[0, 20]}
-                  value={selectedFilters.workYears || [0, 20]}
-                  onChange={(value) => handleFilterChange('workYears', value)}
-                />
-                <div style={{ textAlign: 'center' }}>
-                  {(selectedFilters.workYears || [0, 20]).join('-')}年
+                  onChange={(e) => {
+                    const values = Array.from(e.target.selectedOptions, option => option.value);
+                    handleFilterChange('city', values);
+                  }}
+                >
+                  {cityOptions.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">最高学历</label>
+                <select
+                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={selectedFilters.degree || ''}
+                  onChange={(e) => handleFilterChange('degree', e.target.value)}
+                >
+                  <option value="">请选择学历</option>
+                  {degreeOptions.map(degree => (
+                    <option key={degree} value={degree}>{degree}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">工作年限</label>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={selectedFilters.workYears ? selectedFilters.workYears[1] || 20 : 20}
+                    onChange={(e) => {
+                      const currentValue = selectedFilters.workYears || [0, 20];
+                      handleFilterChange('workYears', [currentValue[0], parseInt(e.target.value)]);
+                    }}
+                    className="w-full"
+                  />
+                  <div className="text-center">
+                    {selectedFilters.workYears ? `${selectedFilters.workYears.join('-')}` : '0-20'}年
+                  </div>
                 </div>
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>硬技能</div>
-                <Select
-                  mode="tags"
-                  style={{ width: '100%' }}
-                  placeholder="请选择或输入技能"
-                  options={skillOptions.map(skill => ({ label: skill, value: skill }))}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">硬技能</label>
+                <select
+                  multiple
+                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={selectedFilters.skills || []}
-                  onChange={(value) => handleFilterChange('skills', value)}
-                />
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>匹配度</div>
-                <Slider
-                  range
-                  min={0}
-                  max={100}
-                  defaultValue={[0, 100]}
-                  value={selectedFilters.matchScore || [0, 100]}
-                  onChange={(value) => handleFilterChange('matchScore', value)}
-                />
-                <div style={{ textAlign: 'center' }}>
-                  {(selectedFilters.matchScore || [0, 100]).join('-')}%
+                  onChange={(e) => {
+                    const values = Array.from(e.target.selectedOptions, option => option.value);
+                    handleFilterChange('skills', values);
+                  }}
+                >
+                  {skillOptions.map(skill => (
+                    <option key={skill} value={skill}>{skill}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">匹配度</label>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={selectedFilters.matchScore ? selectedFilters.matchScore[1] || 100 : 100}
+                    onChange={(e) => {
+                      const currentValue = selectedFilters.matchScore || [0, 100];
+                      handleFilterChange('matchScore', [currentValue[0], parseInt(e.target.value)]);
+                    }}
+                    className="w-full"
+                  />
+                  <div className="text-center">
+                    {selectedFilters.matchScore ? `${selectedFilters.matchScore.join('-')}%` : '0-100%'}
+                  </div>
                 </div>
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>来源</div>
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="请选择来源"
-                  options={sourceOptions.map(source => ({ label: source, value: source }))}
-                  value={selectedFilters.source || '全部'}
-                  onChange={(value) => handleFilterChange('source', value)}
-                />
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>解析时间</div>
-                <RangePicker
-                  style={{ width: '100%' }}
-                  value={selectedFilters.parsedDate || undefined}
-                  onChange={(dates) => handleFilterChange('parsedDate', dates)}
-                />
-              </Col>
-              <Col span={8}>
-                <div style={{ marginBottom: 8 }}>匹配职位</div>
-                <Select
-                  mode="multiple"
-                  style={{ width: '100%' }}
-                  placeholder="请选择匹配职位"
-                  options={positionOptions.map(position => ({ label: position, value: position }))}
-                  value={selectedFilters.matchedPosition || []}
-                  onChange={(value) => handleFilterChange('matchedPosition', value)}
-                />
-              </Col>
-            </Row>
-          </Card>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">来源</label>
+                <select
+                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={selectedFilters.source || ''}
+                  onChange={(e) => handleFilterChange('source', e.target.value)}
+                >
+                  <option value="">请选择来源</option>
+                  {sourceOptions.map(source => (
+                    <option key={source} value={source}>{source}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* 已选条件标签 */}
-        <div style={{ marginBottom: 16 }}>
+        <div className="mb-6">
           {filterTags}
         </div>
 
         {/* 批量操作和表格 */}
         <div>
-          <div style={{ marginBottom: 16 }}>
-            <Space>
-              <Dropdown
-                menu={{ 
-                  items: batchMenuItems,
-                  onClick: ({ key }) => handleBatchOperation(key)
-                }}
-              >
-                <Button>
-                  批量操作 <DownOutlined />
-                </Button>
-              </Dropdown>
-              <span>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button className="flex items-center text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                  批量操作
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-10 hidden group-hover:block">
+                  <button 
+                    className="block w-full text-left px-4 py-2 hover:bg-slate-50 text-sm"
+                    onClick={() => handleBatchOperation('export')}
+                  >
+                    导出选中
+                  </button>
+                  <button 
+                    className="block w-full text-left px-4 py-2 hover:bg-slate-50 text-sm"
+                    onClick={() => handleBatchOperation('contact')}
+                  >
+                    标记为已联系
+                  </button>
+                </div>
+              </div>
+              <span className="text-slate-600">
                 已选择 {selectedRows.length} 项
               </span>
-            </Space>
+            </div>
           </div>
 
-          <Table
-            rowSelection={rowSelection}
-            columns={columns}
-            dataSource={filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
-            rowKey="resumeId"
-            loading={loading}
-            onChange={handleTableChange}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: filteredData.length,
-              onChange: (page, size) => {
-                setCurrentPage(page);
-                setPageSize(size || 10);
-              },
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total) => `共 ${total} 条`
-            }}
-          />
+          {/* 表格 */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center">
+                      姓名
+                      {getSortIcon('name')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('phone')}
+                  >
+                    <div className="flex items-center">
+                      手机号
+                      {getSortIcon('phone')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('email')}
+                  >
+                    <div className="flex items-center">
+                      邮箱
+                      {getSortIcon('email')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('currentPosition')}
+                  >
+                    <div className="flex items-center">
+                      当前职位
+                      {getSortIcon('currentPosition')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('currentCompany')}
+                  >
+                    <div className="flex items-center">
+                      公司
+                      {getSortIcon('currentCompany')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('location')}
+                  >
+                    <div className="flex items-center">
+                      城市
+                      {getSortIcon('location')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('matchedPosition')}
+                  >
+                    <div className="flex items-center">
+                      匹配职位
+                      {getSortIcon('matchedPosition')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('source')}
+                  >
+                    <div className="flex items-center">
+                      来源
+                      {getSortIcon('source')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer"
+                    onClick={() => handleSort('parsedAt')}
+                  >
+                    <div className="flex items-center">
+                      解析时间
+                      {getSortIcon('parsedAt')}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {paginatedData.map((resume) => (
+                  <tr key={resume.resumeId} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.includes(resume.resumeId)}
+                        onChange={() => handleRowSelect(resume.resumeId)}
+                        className="rounded text-blue-600 focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      <button 
+                        onClick={() => {
+                          setSelectedResume(resume);
+                          setDetailModalVisible(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {resume.name}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.phone}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.currentPosition}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.currentCompany}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.location}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-slate-500 mb-1">{resume.matchedPosition || '—'}</div>
+                      {resume.matchScore !== undefined && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-slate-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                resume.matchScore >= 80 ? 'bg-green-500' : 
+                                resume.matchScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${resume.matchScore}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-slate-500">{resume.matchScore}%</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {resume.source}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {new Date(resume.parsedAt).toLocaleString('zh-CN')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={() => {
+                          // TODO: 实际API调用 - 跳转到对应的解析任务详情页面
+                          // 这里应该根据简历ID获取对应的解析任务ID，然后跳转
+                          // 暂时使用一个模拟的任务ID进行跳转
+                          navigate(`/tasks/${resume.resumeId}`);
+                        }}
+                      >
+                        查看详情
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 分页 */}
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-slate-700">
+              共 <span className="font-medium">{filteredData.length}</span> 条
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={`p-2 rounded-lg ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-10 h-10 rounded-lg ${
+                    currentPage === i + 1
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                className={`p-2 rounded-lg ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-slate-700">每页</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border border-slate-200 rounded-lg p-2 text-sm"
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <span className="text-sm text-slate-700">条</span>
+            </div>
+          </div>
         </div>
-      </Card>
+      </div>
 
       {/* 简历详情弹窗 */}
       {selectedResume && (

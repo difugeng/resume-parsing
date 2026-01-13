@@ -1,8 +1,5 @@
 import React from 'react';
-import { Modal, Descriptions, Tag, Space, Typography, Divider } from 'antd';
 import { IndexedResume } from '../types';
-
-const { Title } = Typography;
 
 interface ResumeDetailModalProps {
   visible: boolean;
@@ -11,93 +8,161 @@ interface ResumeDetailModalProps {
 }
 
 const ResumeDetailModal: React.FC<ResumeDetailModalProps> = ({ visible, resume, onClose }) => {
-  if (!resume) return null;
+  if (!resume || !visible) return null;
 
   return (
-    <Modal
-      title={`${resume.name} - 简历详情`}
-      open={visible}
-      onCancel={onClose}
-      footer={null}
-      width={800}
-    >
-      <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-        {/* 基础信息 */}
-        <Title level={4}>基础信息</Title>
-        <Descriptions column={2} style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="姓名">{resume.name}</Descriptions.Item>
-          <Descriptions.Item label="手机号">{resume.phone}</Descriptions.Item>
-          <Descriptions.Item label="邮箱">{resume.email}</Descriptions.Item>
-          <Descriptions.Item label="年龄">{resume.age || '—'}</Descriptions.Item>
-          <Descriptions.Item label="所在城市">{resume.location}</Descriptions.Item>
-          <Descriptions.Item label="来源">{resume.source}</Descriptions.Item>
-          <Descriptions.Item label="解析时间">{new Date(resume.parsedAt).toLocaleString('zh-CN')}</Descriptions.Item>
-          <Descriptions.Item label="匹配度">{resume.matchScore ? `${resume.matchScore}%` : '—'}</Descriptions.Item>
-        </Descriptions>
-
-        <Divider />
-
-        {/* 教育背景 */}
-        <Title level={4}>教育背景</Title>
-        <Descriptions column={2} style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="最高学历">{resume.highestDegree}</Descriptions.Item>
-          <Descriptions.Item label="毕业院校">{resume.school.join(', ')}</Descriptions.Item>
-          <Descriptions.Item label="专业">{resume.major}</Descriptions.Item>
-        </Descriptions>
-
-        <Divider />
-
-        {/* 工作经历 */}
-        <Title level={4}>工作经历</Title>
-        <Descriptions column={2} style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="当前职位">{resume.currentPosition}</Descriptions.Item>
-          <Descriptions.Item label="当前公司">{resume.currentCompany}</Descriptions.Item>
-          <Descriptions.Item label="工作年限">{resume.workYears}年</Descriptions.Item>
-          <Descriptions.Item label="曾服务公司">{resume.companies.join(', ')}</Descriptions.Item>
-        </Descriptions>
-
-        <Divider />
-
-        {/* 技能 */}
-        <Title level={4}>技能</Title>
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ marginBottom: 8 }}>
-            <strong>硬技能：</strong>
-            <Space wrap style={{ marginLeft: 8 }}>
-              {resume.hardSkills.map((skill, index) => (
-                <Tag key={index} color="blue">{skill}</Tag>
-              ))}
-            </Space>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-slate-800">{resume.name} - 简历详情</h2>
+            <button 
+              className="text-slate-400 hover:text-slate-600"
+              onClick={onClose}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div style={{ marginBottom: 8 }}>
-            <strong>软技能：</strong>
-            <Space wrap style={{ marginLeft: 8 }}>
-              {resume.softSkills.map((skill, index) => (
-                <Tag key={index} color="green">{skill}</Tag>
-              ))}
-            </Space>
-          </div>
-          <div>
-            <strong>语言能力：</strong>
-            <Space wrap style={{ marginLeft: 8 }}>
-              {resume.languages.map((lang, index) => (
-                <Tag key={index} color="orange">{lang}</Tag>
-              ))}
-            </Space>
+
+          <div className="space-y-8">
+            {/* 基础信息 */}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">基础信息</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">姓名</label>
+                  <p className="text-slate-800">{resume.name}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">手机号</label>
+                  <p className="text-slate-800">{resume.phone}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">邮箱</label>
+                  <p className="text-slate-800">{resume.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">年龄</label>
+                  <p className="text-slate-800">{resume.age || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">所在城市</label>
+                  <p className="text-slate-800">{resume.location}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">来源</label>
+                  <p className="text-slate-800">{resume.source}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">解析时间</label>
+                  <p className="text-slate-800">{new Date(resume.parsedAt).toLocaleString('zh-CN')}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">匹配度</label>
+                  <p className="text-slate-800">{resume.matchScore ? `${resume.matchScore}%` : '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              {/* 教育背景 */}
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">教育背景</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">最高学历</label>
+                  <p className="text-slate-800">{resume.highestDegree}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">毕业院校</label>
+                  <p className="text-slate-800">{resume.school.join(', ')}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">专业</label>
+                  <p className="text-slate-800">{resume.major}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              {/* 工作经历 */}
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">工作经历</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">当前职位</label>
+                  <p className="text-slate-800">{resume.currentPosition}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">当前公司</label>
+                  <p className="text-slate-800">{resume.currentCompany}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">工作年限</label>
+                  <p className="text-slate-800">{resume.workYears}年</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-500 mb-1">曾服务公司</label>
+                  <p className="text-slate-800">{resume.companies.join(', ')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              {/* 技能 */}
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">技能</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center mb-2">
+                    <strong className="text-slate-700 mr-2">硬技能：</strong>
+                    <div className="flex flex-wrap gap-2">
+                      {resume.hardSkills.map((skill, index) => (
+                        <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center mb-2">
+                    <strong className="text-slate-700 mr-2">软技能：</strong>
+                    <div className="flex flex-wrap gap-2">
+                      {resume.softSkills.map((skill, index) => (
+                        <span key={index} className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center">
+                    <strong className="text-slate-700 mr-2">语言能力：</strong>
+                    <div className="flex flex-wrap gap-2">
+                      {resume.languages.map((lang, index) => (
+                        <span key={index} className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              {/* 求职意向 */}
+              <h3 className="text-lg font-semibold text-slate-800 mb-4">求职意向</h3>
+              <div>
+                <label className="block text-sm font-medium text-slate-500 mb-1">目标职位</label>
+                <p className="text-slate-800">{resume.jobIntent?.targetPosition || '—'}</p>
+              </div>
+            </div>
           </div>
         </div>
-
-        <Divider />
-
-        {/* 求职意向 */}
-        <Title level={4}>求职意向</Title>
-        <Descriptions column={1} style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="目标职位">
-            {resume.jobIntent?.targetPosition || '—'}
-          </Descriptions.Item>
-        </Descriptions>
       </div>
-    </Modal>
+    </div>
   );
 };
 

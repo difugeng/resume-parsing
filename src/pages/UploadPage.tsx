@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Space, Card, Form, Select, Radio } from 'antd';
-import { InboxOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
-const { Dragger } = Upload;
-
 const UploadPage: React.FC = () => {
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<File[]>([]);
   const [recognitionType, setRecognitionType] = useState<'system' | 'target'>('system');
   const [targetPosition, setTargetPosition] = useState<string>('前端工程师');
   const navigate = useNavigate();
@@ -24,7 +20,7 @@ const UploadPage: React.FC = () => {
 
   const handleStartParse = () => {
     if (fileList.length === 0) {
-      message.warning('请先上传简历文件');
+      alert('请先上传简历文件');
       return;
     }
 
@@ -50,103 +46,164 @@ const UploadPage: React.FC = () => {
       navigate('/tasks/task-002');
     }
     
-    message.success(`已开始解析 ${fileList.length} 份简历`);
+    alert(`已开始解析 ${fileList.length} 份简历`);
   };
 
   const handleGoBack = () => {
     navigate('/tasks');
   };
 
-  const uploadProps = {
-    name: 'files',
-    multiple: true,
-    fileList,
-    onChange: ({ fileList: newFileList }: any) => {
-      setFileList(newFileList);
-    },
-    onRemove: (file: any) => {
-      const index = fileList.indexOf(file);
-      const newFileList = fileList.slice();
-      newFileList.splice(index, 1);
-      setFileList(newFileList);
-    },
-    beforeUpload: (file: any) => {
-      // 检查文件类型
-      const allowedTypes = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      // 验证文件类型和大小
+      const validFiles = files.filter(file => {
+        const allowedTypes = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png'];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        
+        if (!allowedTypes.includes(fileExtension || '')) {
+          alert(`${file.name} 文件格式不支持！`);
+          return false;
+        }
+        
+        if (file.size > 20 * 1024 * 1024) {
+          alert(`${file.name} 文件大小超过20MB限制！`);
+          return false;
+        }
+        
+        return true;
+      });
       
-      if (!allowedTypes.includes(fileExtension || '')) {
-        message.error(`${file.name} 文件格式不支持！`);
-        return false;
-      }
-      
-      // 检查文件大小（20MB限制）
-      if (file.size > 20 * 1024 * 1024) {
-        message.error(`${file.name} 文件大小超过20MB限制！`);
-        return false;
-      }
-      
-      setFileList([...fileList, file]);
-      return false; // 阻止自动上传
-    },
+      setFileList(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFileList(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <Button onClick={handleGoBack} icon={<ArrowLeftOutlined />} type="primary" ghost>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6">
+        <button 
+          onClick={handleGoBack} 
+          className="flex items-center text-slate-600 hover:text-slate-900 transition-colors"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           返回
-        </Button>
+        </button>
       </div>
-      <Card title="上传简历文件">
-        <Form layout="vertical">
-          <Form.Item label="识别类型">
-            <Radio.Group 
-              value={recognitionType} 
-              onChange={(e) => setRecognitionType(e.target.value)}
-              style={{ marginBottom: 16 }}
+      
+      <div className="bg-white rounded-3xl border border-slate-100 p-8 card-shadow">
+        <h2 className="text-2xl font-bold text-slate-800 mb-8">上传简历文件</h2>
+        
+        <div className="mb-8">
+          <div className="flex space-x-4 mb-4">
+            <button
+              className={`px-6 py-3 rounded-xl font-medium text-sm ${
+                recognitionType === 'system'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+              onClick={() => setRecognitionType('system')}
             >
-              <Radio.Button value="system">系统识别</Radio.Button>
-              <Radio.Button value="target">目标职位</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
+              系统识别
+            </button>
+            <button
+              className={`px-6 py-3 rounded-xl font-medium text-sm ${
+                recognitionType === 'target'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+              onClick={() => setRecognitionType('target')}
+            >
+              目标职位
+            </button>
+          </div>
           
           {recognitionType === 'target' && (
-            <Form.Item label="目标职位">
-              <Select 
-                value={targetPosition} 
-                onChange={setTargetPosition}
-                style={{ width: 300 }}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">目标职位</label>
+              <select
+                value={targetPosition}
+                onChange={(e) => setTargetPosition(e.target.value)}
+                className="w-full md:w-80 px-4 py-3 border border-slate-200 rounded-2xl bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm shadow-sm"
               >
                 {targetPositions.map(position => (
-                  <Select.Option key={position} value={position}>{position}</Select.Option>
+                  <option key={position} value={position}>{position}</option>
                 ))}
-              </Select>
-            </Form.Item>
+              </select>
+            </div>
           )}
-        </Form>
+        </div>
         
-        <Dragger {...uploadProps} style={{ marginBottom: 24 }}>
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">点击或拖拽简历文件到此区域进行上传</p>
-          <p className="ant-upload-hint">
-            支持单次上传多个文件，支持格式：PDF, DOC, DOCX, TXT, JPG, PNG
-          </p>
-        </Dragger>
+        <div className="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-colors mb-8">
+          <input
+            type="file"
+            id="file-upload"
+            className="hidden"
+            multiple
+            onChange={handleFileChange}
+            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          />
+          <label htmlFor="file-upload" className="cursor-pointer">
+            <div className="flex flex-col items-center">
+              <svg className="w-12 h-12 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <p className="text-lg font-medium text-slate-700 mb-1">点击或拖拽简历文件到此区域进行上传</p>
+              <p className="text-slate-500">支持单次上传多个文件，支持格式：PDF, DOC, DOCX, TXT, JPG, PNG</p>
+            </div>
+          </label>
+        </div>
         
-        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button 
-            type="primary" 
-            size="large"
+        {fileList.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-slate-700 mb-4">已选择的文件 ({fileList.length})</h3>
+            <div className="space-y-3">
+              {fileList.map((file, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-800 truncate max-w-xs">{file.name}</p>
+                      <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => removeFile(index)}
+                    className="text-slate-400 hover:text-red-500 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <div className="flex justify-end">
+          <button
+            className={`px-8 py-3 rounded-2xl font-bold text-white shadow-xl transition-all ${
+              fileList.length > 0
+                ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-100'
+                : 'bg-slate-300 cursor-not-allowed'
+            }`}
             onClick={handleStartParse}
             disabled={fileList.length === 0}
           >
             开始解析
-          </Button>
-        </Space>
-      </Card>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

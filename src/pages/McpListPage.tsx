@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, Button, Space, Modal, message, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, CheckOutlined, CloseOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { McpProvider } from '../types';
 import { mockMcpProviders } from '../mockData';
@@ -9,31 +7,14 @@ const McpListPage: React.FC = () => {
   const navigate = useNavigate();
   const [providers, setProviders] = useState<McpProvider[]>([]);
   const [filteredProviders, setFilteredProviders] = useState<McpProvider[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{show: boolean, id: string | null}>({show: false, id: null});
 
   useEffect(() => {
-    // TODO: 替换为真实 API 调用
-    // const fetchProviders = async () => {
-    //   try {
-    //     const response = await fetch('/api/v1/mcp-providers');
-    //     const data = await response.json();
-    //     setProviders(data);
-    //     setFilteredProviders(data);
-    //   } catch (error) {
-    //     console.error('获取MCP服务列表失败:', error);
-    //     message.error('获取MCP服务列表失败');
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchProviders();
-
     // 使用 mock 数据
     setProviders(mockMcpProviders);
     setFilteredProviders(mockMcpProviders);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -50,10 +31,6 @@ const McpListPage: React.FC = () => {
     setFilteredProviders(result);
   }, [selectedStatus, selectedCategory, providers]);
 
-  const getStatusColor = (status: string) => {
-    return status === '启用' ? 'green' : 'default';
-  };
-
   const handleEdit = (id: string) => {
     navigate(`/mcp-providers/${id}/edit`);
   };
@@ -62,60 +39,25 @@ const McpListPage: React.FC = () => {
     navigate('/mcp-providers/new');
   };
 
-  const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除这个MCP服务吗？此操作不可恢复。',
-      okText: '确定',
-      cancelText: '取消',
-      onOk: () => {
-        // TODO: 替换为真实 API 调用
-        // const deleteProvider = async () => {
-        //   try {
-        //     await fetch(`/api/v1/mcp-providers/${id}`, { method: 'DELETE' });
-        //     setProviders(providers.filter(provider => provider.mcpId !== id));
-        //     setFilteredProviders(filteredProviders.filter(provider => provider.mcpId !== id));
-        //     message.success('删除成功');
-        //   } catch (error) {
-        //     console.error('删除MCP服务失败:', error);
-        //     message.error('删除MCP服务失败');
-        //   }
-        // };
-        // deleteProvider();
+  const handleDeleteConfirm = (id: string) => {
+    setShowDeleteConfirm({show: true, id});
+  };
 
-        // 使用 mock 数据
-        const updatedProviders = providers.filter(provider => provider.mcpId !== id);
-        setProviders(updatedProviders);
-        setFilteredProviders(updatedProviders);
-        message.success('删除成功');
-      }
-    });
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm({show: false, id: null});
+  };
+
+  const handleDelete = () => {
+    if (showDeleteConfirm.id) {
+      const updatedProviders = providers.filter(provider => provider.mcpId !== showDeleteConfirm.id);
+      setProviders(updatedProviders);
+      setFilteredProviders(updatedProviders);
+      alert('删除成功');
+      setShowDeleteConfirm({show: false, id: null});
+    }
   };
 
   const handleToggleStatus = (id: string) => {
-    // TODO: 替换为真实 API 调用
-    // const updateStatus = async (providerId: string, newStatus: '启用' | '停用') => {
-    //   try {
-    //     await fetch(`/api/v1/mcp-providers/${providerId}`, {
-    //       method: 'PUT',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       body: JSON.stringify({ status: newStatus }),
-    //     });
-    //     setProviders(providers.map(provider => 
-    //       provider.mcpId === id ? { ...provider, status: newStatus } : provider
-    //     ));
-    //     setFilteredProviders(filteredProviders.map(provider => 
-    //       provider.mcpId === id ? { ...provider, status: newStatus } : provider
-    //     ));
-    //     message.success('状态更新成功');
-    //   } catch (error) {
-    //     console.error('更新状态失败:', error);
-    //     message.error('更新状态失败');
-    //   }
-    // };
-    // updateStatus(id, providers.find(p => p.mcpId === id)?.status === '启用' ? '停用' : '启用');
-
-    // 使用 mock 数据
     setProviders(providers.map(provider => 
       provider.mcpId === id 
         ? { 
@@ -134,199 +76,222 @@ const McpListPage: React.FC = () => {
           } 
         : provider
     ));
-    message.success('状态更新成功');
+    alert('状态更新成功');
   };
 
   const handleTestConnection = (id: string) => {
-    // TODO: 替换为真实 API 调用
-    // const testConnection = async (providerId: string) => {
-    //   try {
-    //     const response = await fetch(`/api/v1/mcp-providers/${providerId}/test`, {
-    //       method: 'POST',
-    //     });
-    //     const result = await response.json();
-    //     if (result.success) {
-    //       message.success(`连接测试成功，耗时: ${result.duration}ms`);
-    //     } else {
-    //       message.error(`连接测试失败: ${result.error}`);
-    //     }
-    //   } catch (error) {
-    //     console.error('连接测试失败:', error);
-    //     message.error('连接测试失败');
-    //   }
-    // };
-    // testConnection(id);
-
     // 使用 mock 数据
     const duration = Math.floor(Math.random() * 1000) + 100; // 随机模拟耗时
     console.log('Testing connection for provider:', id); // 使用参数以避免未使用警告
-    message.success(`连接测试成功，耗时: ${duration}ms`);
+    alert(`连接测试成功，耗时: ${duration}ms`);
   };
 
-  const columns = [
-    {
-      title: '服务名称',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: McpProvider, b: McpProvider) => a.name.localeCompare(b.name),
-    },
-    {
-      title: '类别',
-      dataIndex: 'category',
-      key: 'category',
-      render: (category: string) => {
-        let color = 'default';
-        if (category === '学历验证') color = 'blue';
-        if (category === '身份核验') color = 'green';
-        if (category === '工作经历验证') color = 'orange';
-        if (category === '自定义') color = 'purple';
-        
-        return <Tag color={color}>{category}</Tag>;
-      },
-      filters: [
-        { text: '学历验证', value: '学历验证' },
-        { text: '身份核验', value: '身份核验' },
-        { text: '工作经历验证', value: '工作经历验证' },
-        { text: '自定义', value: '自定义' },
-      ],
-      onFilter: (value: any, record: McpProvider) => record.category === value,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
-      ),
-      filters: [
-        { text: '全部', value: null },
-        { text: '启用', value: '启用' },
-        { text: '停用', value: '停用' },
-      ],
-      onFilter: (value: any, record: McpProvider) => {
-        if (value === null) return true;
-        return record.status === value;
-      },
-    },
-    {
-      title: 'API 地址',
-      dataIndex: 'endpointUrl',
-      key: 'endpointUrl',
-      render: (url: string) => (
-        <div style={{ wordBreak: 'break-all' }}>
-          {url}
-        </div>
-      ),
-    },
-    {
-      title: '认证方式',
-      dataIndex: 'authType',
-      key: 'authType',
-      render: (authType: string) => (
-        <Tag color="geekblue">{authType}</Tag>
-      ),
-    },
-    {
-      title: '默认启用',
-      dataIndex: 'isEnabledByDefault',
-      key: 'isEnabledByDefault',
-      render: (isEnabled: boolean) => (
-        <Tag color={isEnabled ? 'green' : 'default'}>
-          {isEnabled ? '✅ 是' : '❌ 否'}
-        </Tag>
-      ),
-    },
-    {
-      title: '创建人',
-      dataIndex: 'createdBy',
-      key: 'createdBy',
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_: any, record: McpProvider) => (
-        <Space size="middle">
-          <Button 
-            type="link" 
-            icon={<EditOutlined />} 
-            onClick={() => handleEdit(record.mcpId)}
-          >
-            编辑
-          </Button>
-          <Button 
-            type="link" 
-            icon={<ThunderboltOutlined />}
-            onClick={() => handleTestConnection(record.mcpId)}
-          >
-            测试连接
-          </Button>
-          <Button 
-            type="link"
-            icon={record.status === '启用' ? <CloseOutlined /> : <CheckOutlined />}
-            onClick={() => handleToggleStatus(record.mcpId)}
-          >
-            {record.status === '启用' ? '停用' : '启用'}
-          </Button>
-          <Button 
-            type="link" 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.mcpId)}
-          >
-            删除
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+  const getCategoryColor = (category: string) => {
+    switch(category) {
+      case '学历验证': return 'bg-blue-100 text-blue-800';
+      case '身份核验': return 'bg-green-100 text-green-800';
+      case '工作经历验证': return 'bg-orange-100 text-orange-800';
+      case '自定义': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === '启用' 
+      ? 'bg-green-100 text-green-800' 
+      : 'bg-gray-100 text-gray-800';
+  };
+
+  const getAuthTypeColor = (authType: string) => {
+    return authType === 'API Key' 
+      ? 'bg-blue-100 text-blue-800' 
+      : 'bg-indigo-100 text-indigo-800';
+  };
+
+  const getDefaultStatusColor = (isEnabled: boolean) => {
+    return isEnabled 
+      ? 'bg-green-100 text-green-800' 
+      : 'bg-gray-100 text-gray-800';
+  };
 
   return (
-    <div>
-      <Card 
-        title="MCP管理"
-        extra={
-          <Space>
-            <Select
-              placeholder="按状态筛选"
-              style={{ width: 150 }}
-              allowClear
-              onChange={(value) => setSelectedStatus(value)}
+    <div className="max-w-7xl mx-auto">
+      <div className="bg-white rounded-3xl border border-slate-100 p-6 card-shadow">
+        <div className="flex flex-wrap justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-800">MCP管理</h2>
+          <div className="flex flex-wrap gap-3 mt-4 sm:mt-0">
+            <select
+              className="border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={selectedStatus || ''}
+              onChange={(e) => setSelectedStatus(e.target.value || null)}
             >
-              <Select.Option value="">全部</Select.Option>
-              <Select.Option value="启用">启用</Select.Option>
-              <Select.Option value="停用">停用</Select.Option>
-            </Select>
-            <Select
-              placeholder="按类别筛选"
-              style={{ width: 150 }}
-              allowClear
-              onChange={(value) => setSelectedCategory(value)}
+              <option value="">全部状态</option>
+              <option value="启用">启用</option>
+              <option value="停用">停用</option>
+            </select>
+            <select
+              className="border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={selectedCategory || ''}
+              onChange={(e) => setSelectedCategory(e.target.value || null)}
             >
-              <Select.Option value="">全部</Select.Option>
-              <Select.Option value="学历验证">学历验证</Select.Option>
-              <Select.Option value="身份核验">身份核验</Select.Option>
-              <Select.Option value="工作经历验证">工作经历验证</Select.Option>
-              <Select.Option value="自定义">自定义</Select.Option>
-            </Select>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
-              新建 MCP 配置
-            </Button>
-          </Space>
-        }
-      >
-        <Table 
-          dataSource={filteredProviders} 
-          columns={columns as any} 
-          rowKey="mcpId"
-          loading={loading}
-          pagination={{ 
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条记录`
-          }}
-        />
-      </Card>
+              <option value="">全部类别</option>
+              <option value="学历验证">学历验证</option>
+              <option value="身份核验">身份核验</option>
+              <option value="工作经历验证">工作经历验证</option>
+              <option value="自定义">自定义</option>
+            </select>
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl font-bold shadow-xl shadow-blue-100 transition-all flex items-center space-x-2"
+              onClick={handleCreate}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>新建 MCP 配置</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  服务名称
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  类别
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  状态
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  API 地址
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  认证方式
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  默认启用
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  创建人
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-slate-200">
+              {filteredProviders.map((provider) => (
+                <tr key={provider.mcpId} className="hover:bg-slate-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-slate-900">{provider.name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryColor(provider.category)}`}>
+                      {provider.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(provider.status)}`}>
+                      {provider.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
+                    {provider.endpointUrl}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getAuthTypeColor(provider.authType)}`}>
+                      {provider.authType}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getDefaultStatusColor(provider.isEnabledByDefault)}`}>
+                      {provider.isEnabledByDefault ? '✅ 是' : '❌ 否'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                    {provider.createdBy}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={() => handleEdit(provider.mcpId)}
+                        title="编辑"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={() => handleTestConnection(provider.mcpId)}
+                        title="测试连接"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </button>
+                      <button
+                        className={`${
+                          provider.status === '启用' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                        }`}
+                        onClick={() => handleToggleStatus(provider.mcpId)}
+                        title={provider.status === '启用' ? '停用' : '启用'}
+                      >
+                        {provider.status === '启用' ? (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteConfirm(provider.mcpId)}
+                        title="删除"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 删除确认模态框 */}
+      {showDeleteConfirm.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">确认删除</h3>
+            <p className="text-slate-600 mb-6">确定要删除这个MCP服务吗？此操作不可恢复。</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                className="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50"
+                onClick={handleDeleteCancel}
+              >
+                取消
+              </button>
+              <button
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                onClick={handleDelete}
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

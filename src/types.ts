@@ -103,6 +103,8 @@ export interface JobPosition {
   preferredSkills: string[];
   educationRequirement: string;
   majorPreference: string;
+  positionType?: string;
+  category?: string;
   createdAt: string;
   updatedAt: string;
 }
